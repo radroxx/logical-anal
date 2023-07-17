@@ -5,7 +5,7 @@ App(
     entry_point="logical_anal_app",
     cdefines=["LOGICAL ANAL"],
     requires=[ "gui" ],
-    stack_size=1 * 1024,
+    stack_size=2 * 1024,
     order=90,
     fap_icon="logical_anal.png",
     fap_category="GPIO",

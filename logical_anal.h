@@ -26,6 +26,24 @@ static const GpioPin* gpios[] = {
 };
 
 
+typedef enum {
+    SUMP_CMD_RESET = 0x00,
+    SUMP_CMD_ARM = 0x01,
+    SUMP_CMD_QUERY_ID = 0x02,
+    SUMP_CMD_SELF_TEST = 0x03,
+    SUMP_CMD_GET_METADATA = 0x04,
+    SUMP_CMD_FINISH_NOW = 0x05,
+    SUMP_CMD_XON = 0x11,
+    SUMP_CMD_XOFF = 0x13,
+    SUMP_CMD_SET_DIVIDER = 0x80,
+    SUMP_CMD_SET_READ_DELAY_COUNT = 0x81,
+    SUMP_CMD_SET_FLAGS = 0x82,
+    SUMP_CMD_TRIGGER_MASK = 0xC0,
+    SUMP_CMD_TRIGGER_VALUES = 0xC1,
+    SUMP_CMD_TRIGGER_CONFIG = 0xC2,
+} SumpCommands;
+
+
 const char *CHAR_TO_BIN[256] = {
 	[0x00] = "I  O  O  O  I  O  O  I  O  O  O  I  OO  I",
 	[0x01] = "I  O  O  O  I  O  O  I  O  O   I   I  O I   I",
@@ -286,6 +304,17 @@ const char *CHAR_TO_BIN[256] = {
 };
 
 
+unsigned char SUMP_META[37] = {
+	0x01, 0x46, 0x6c, 0x69, 0x70, 0x70, 0x65, 0x72, 0x20, 0x7a, 0x65, 0x72, 0x6f, 0x00, // name: Flipper zero
+	0x02, 0x28, 0x6e, 0x6f, 0x6e, 0x65, 0x29, 0x00, // FPGA: (none)
+	0x21, 0xFF, 0xFF, 0xFF, 0xFF, // Amount of sample memory available (bytes) 2048
+	0x23, 0x00, 0x0f, 0x42, 0x40, // Maximum sample rate (hz) 1000000 Hz
+	0x40, 0x08, // Number of usable probes (short)
+	0x41, 0x02, // Protocol version (short)
+	0x00
+};
+
+
 typedef struct {
     Gui* gui;
     Canvas* canvas;
@@ -294,5 +323,9 @@ typedef struct {
     FuriPubSubSubscription* input_subscription;
     
     bool is_runing;
-	unsigned int test;
+	FuriMutex* usb_serial_mutex;
+	bool armed;
+
+	uint8_t mask;
+	uint8_t inverted_mask;
 } App;
